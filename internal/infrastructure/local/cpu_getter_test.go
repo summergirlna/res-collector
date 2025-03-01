@@ -8,7 +8,7 @@ import (
 )
 
 func TestNewCpuGetter(t *testing.T) {
-	g := NewLocalCpuGetter()
+	g := NewCpuGetter()
 	c, err := g.Get(context.TODO())
 	assert.NoError(t, err)
 	fmt.Println(c.String())

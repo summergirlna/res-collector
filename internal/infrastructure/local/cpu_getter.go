@@ -15,20 +15,20 @@ func NewCpuGetter() component.CpuGetter {
 	return &CpuGetter{}
 }
 
-func (l CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
+func (g CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 	// MEMO cpu.Times()の引数をtrueにすると、コア毎の値が取得できる
 	// MEMO cpu.Timesは動いていた時間を取得する
 
 	// -----
 	// 取得開始
 	// -----
-	start, err := l.getStat()
+	start, err := g.getStat()
 	if err != nil {
 		return nil, err
 	}
 	time.Sleep(time.Second)
 	now := time.Now()
-	end, err := l.getStat()
+	end, err := g.getStat()
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func (l CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 	// -----
 	// 差分計算
 	// -----
-	userDiff, systemDiff, iowaitDiff, totalDiff := l.calculateDiff(start, end)
+	userDiff, systemDiff, iowaitDiff, totalDiff := g.calculateDiff(start, end)
 
 	return &model.Cpu{
 		Timestamp: now,
@@ -46,7 +46,7 @@ func (l CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 	}, nil
 }
 
-func (l CpuGetter) getStat() (cpu.TimesStat, error) {
+func (g CpuGetter) getStat() (cpu.TimesStat, error) {
 	stats, err := cpu.Times(false)
 	if err != nil {
 		return cpu.TimesStat{}, err
@@ -58,7 +58,7 @@ func (l CpuGetter) getStat() (cpu.TimesStat, error) {
 	return stats[0], nil
 }
 
-func (l CpuGetter) calculateDiff(start cpu.TimesStat, end cpu.TimesStat) (float64, float64, float64, float64) {
+func (g CpuGetter) calculateDiff(start cpu.TimesStat, end cpu.TimesStat) (float64, float64, float64, float64) {
 	userDiff := end.User - start.User
 	systemDiff := end.System - start.System
 	iowaitDiff := end.Iowait - start.Iowait
