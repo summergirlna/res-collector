@@ -18,18 +18,22 @@ type Cpu struct {
 	IOWait       float64 `db:"iowait_time"`
 }
 
-func FromCpu(m *model.Cpu) *Cpu {
+func NewCpu() *Cpu {
+	return &Cpu{}
+}
+
+func (c *Cpu) From(m *model.Cpu) *Cpu {
 	year, month, day, hour, minute, second := m.Timestamp.Parse()
-	return &Cpu{
-		SerialNumber: uuid.NewString(),
-		Year:         year,
-		Month:        month,
-		Day:          day,
-		Hour:         hour,
-		Minute:       minute,
-		Second:       second,
-		User:         m.User,
-		System:       m.System,
-		IOWait:       m.IOWait,
-	}
+	c.SerialNumber = uuid.NewString()
+	c.Year = year
+	c.Month = month
+	c.Day = day
+	c.Hour = hour
+	c.Minute = minute
+	c.Second = second
+	c.User = m.User
+	c.System = m.System
+	c.IOWait = m.IOWait
+	return c
+
 }

@@ -27,6 +27,18 @@ CREATE TABLE IF NOT EXISTS cpu_stats
     system_time   REAL    NOT NULL,
     iowait_time   REAL    NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS memory_stats
+(
+    serial_number TEXT PRIMARY KEY,
+    year          INTEGER NOT NULL,
+    month         INTEGER NOT NULL,
+    day           INTEGER NOT NULL,
+    hour          INTEGER NOT NULL,
+    minute        INTEGER NOT NULL,
+    second        INTEGER NOT NULL,
+    application_used     REAL    NOT NULL
+);
 `
 )
 
@@ -41,7 +53,8 @@ func main() {
 	stat := rdb.NewSQLiteStat(db)
 	transaction := rdb.NewTransaction(db)
 	cpuGetter := local.NewCpuGetter()
-	service := save_stats.NewProvider(cpuGetter, stat, transaction)
+	memoryGetter := local.NewMemoryGetter()
+	service := save_stats.NewProvider(cpuGetter, memoryGetter, stat, transaction)
 	if _, err := service.Save(context.TODO(), &save_stats.Input{}); err != nil {
 		slog.Error("error occurred", "cause", err.Error())
 	}

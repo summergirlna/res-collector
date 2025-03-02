@@ -8,13 +8,24 @@ import (
 )
 
 type Provider struct {
-	cpuGetter   component.CpuGetter
-	stats       repository.Stat
-	transaction repository.Transaction
+	cpuGetter    component.CpuGetter
+	memoryGetter component.MemoryGetter
+	stats        repository.Stat
+	transaction  repository.Transaction
 }
 
-func NewProvider(cpuGetter component.CpuGetter, stats repository.Stat, transaction repository.Transaction) Service {
-	return &Provider{cpuGetter: cpuGetter, stats: stats, transaction: transaction}
+func NewProvider(
+	cpuGetter component.CpuGetter,
+	memoryGetter component.MemoryGetter,
+	stats repository.Stat,
+	transaction repository.Transaction,
+) Service {
+	return &Provider{
+		cpuGetter:    cpuGetter,
+		memoryGetter: memoryGetter,
+		stats:        stats,
+		transaction:  transaction,
+	}
 }
 
 func (p Provider) Save(ctx context.Context, in *Input) (*Output, error) {
@@ -23,12 +34,22 @@ func (p Provider) Save(ctx context.Context, in *Input) (*Output, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	slog.Info("end getting cpu stats", "stats", c.String())
+
+	slog.Info("start getting mem stats")
+	m, err := p.memoryGetter.Get(ctx)
+	if err != nil {
+		return nil, err
+	}
+	slog.Info("end getting mem stats", "stats", m.String())
 
 	slog.Info("save start")
 	_, err = p.transaction.Do(ctx, func(ctx context.Context) (interface{}, error) {
-		err = p.stats.Save(ctx, c)
+		err = p.stats.SaveCpu(ctx, c)
+		if err != nil {
+			return nil, err
+		}
+		err = p.stats.SaveMemory(ctx, m)
 		if err != nil {
 			return nil, err
 		}

@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestNewCpuGetter(t *testing.T) {
+func TestCpuGetter_Get(t *testing.T) {
 	g := NewCpuGetter()
 	c, err := g.Get(context.TODO())
 	assert.NoError(t, err)
