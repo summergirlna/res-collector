@@ -39,8 +39,9 @@ func main() {
 	db.MustExec(schema)
 
 	stat := rdb.NewSQLiteStat(db)
+	transaction := rdb.NewTransaction(db)
 	cpuGetter := local.NewCpuGetter()
-	service := save_stats.NewProvider(cpuGetter, stat)
+	service := save_stats.NewProvider(cpuGetter, stat, transaction)
 	if _, err := service.Save(context.TODO(), &save_stats.Input{}); err != nil {
 		slog.Error("error occurred", "cause", err.Error())
 	}

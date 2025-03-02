@@ -4,41 +4,55 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/magefile/mage/mg" // mg contains helpful utility functions, like Deps
 )
 
 // Default target to run when none is specified
 // If not set, running mage will list available targets
-// var Default = Build
+var (
+	Default = Build
+	BinPath = filepath.Join("bin", "res-collector")
+	DBPath  = filepath.Join("data", "example.db")
+	logger  = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}))
+)
 
 // A build step that requires additional params, or platform specific steps for example
-func Build() error {
-	mg.Deps(InstallDeps)
-	fmt.Println("Building...")
-	cmd := exec.Command("go", "build", "-o", "MyApp", ".")
-	return cmd.Run()
-}
-
-// A custom install step if you need your bin someplace other than go/bin
-func Install() error {
-	mg.Deps(Build)
-	fmt.Println("Installing...")
-	return os.Rename("./MyApp", "/usr/bin/MyApp")
-}
-
-// Manage your deps, or running package managers.
-func InstallDeps() error {
-	fmt.Println("Installing Deps...")
-	cmd := exec.Command("go", "get", "github.com/stretchr/piglatin")
-	return cmd.Run()
+func Build() {
+	logger.Info("ビルドします")
+	cmd := exec.Command("go", "build", "-o", BinPath, ".")
+	cmd.Run()
+	logger.Info("ビルドしました")
 }
 
 // Clean up after yourself
 func Clean() {
-	fmt.Println("Cleaning...")
-	os.RemoveAll("MyApp")
+	logger.Info("バイナリを削除します")
+	os.RemoveAll(BinPath)
+	logger.Info("バイナリを削除しました")
+}
+
+func Run() {
+	mg.Deps(Clean)
+	mg.Deps(Build)
+	cmd := exec.Command(BinPath, "run")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	logger.Info("実行します")
+	cmd.Run()
+	logger.Info("実行しました")
+	mg.Deps(DBSelect)
+}
+
+func DBSelect() {
+	cmd := exec.Command("sqlite3", DBPath, "SELECT * FROM cpu_stats ORDER BY year DESC, month DESC, day DESC, hour DESC, minute DESC, second DESC LIMIT 1")
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	logger.Info("ダンプします")
+	cmd.Run()
+	logger.Info("ダンプしました")
 }
