@@ -14,7 +14,6 @@ func NewMemoryGetter() component.MemoryGetter {
 }
 
 func (m MemoryGetter) Get(ctx context.Context) (*model.Memory, error) {
-	now := model.NewTimestamp().Now()
 	stats, err := mem.VirtualMemory()
 	if err != nil {
 		return nil, err
@@ -24,7 +23,6 @@ func (m MemoryGetter) Get(ctx context.Context) (*model.Memory, error) {
 	total := stats.Total
 
 	return &model.Memory{
-		Timestamp: now,
-		Used:      float64(total-available) / float64(total) * 100,
+		Used: float64(total-available) / float64(total) * percentage,
 	}, nil
 }

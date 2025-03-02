@@ -6,6 +6,7 @@ import (
 )
 
 type Stat interface {
-	SaveCpu(ctx context.Context, cpu *model.Cpu) error
-	SaveMemory(ctx context.Context, memory *model.Memory) error
+	SaveCpu(ctx context.Context, cpu *model.Cpu, mng *model.Management) error
+	SaveMemory(ctx context.Context, memory *model.Memory, mng *model.Management) error
+	SaveManagement(ctx context.Context, management *model.Management) error
 }

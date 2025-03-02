@@ -15,10 +15,6 @@ func NewCpuGetter() component.CpuGetter {
 	return &CpuGetter{}
 }
 
-const (
-	percentage = 100
-)
-
 func (g CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 	// MEMO cpu.Times()の引数をtrueにすると、コア毎の値が取得できる
 	// MEMO cpu.Timesは動いていた時間を取得する
@@ -31,7 +27,6 @@ func (g CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 		return nil, err
 	}
 	time.Sleep(time.Second)
-	now := model.NewTimestamp().Now()
 	end, err := g.getStat()
 	if err != nil {
 		return nil, err
@@ -43,10 +38,9 @@ func (g CpuGetter) Get(ctx context.Context) (*model.Cpu, error) {
 	userDiff, systemDiff, iowaitDiff, totalDiff := g.calculateDiff(start, end)
 
 	return &model.Cpu{
-		Timestamp: now,
-		User:      userDiff / totalDiff * percentage,
-		System:    systemDiff / totalDiff * percentage,
-		IOWait:    iowaitDiff / totalDiff * percentage,
+		User:   userDiff / totalDiff * percentage,
+		System: systemDiff / totalDiff * percentage,
+		IOWait: iowaitDiff / totalDiff * percentage,
 	}, nil
 }
 

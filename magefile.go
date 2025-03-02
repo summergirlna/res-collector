@@ -49,10 +49,10 @@ func Run() {
 }
 
 func DBSelect() {
-	cmd1 := exec.Command("sqlite3", DBPath, "SELECT * FROM cpu_stats ORDER BY year DESC, month DESC, day DESC, hour DESC, minute DESC, second DESC LIMIT 1")
+	cmd1 := exec.Command("sqlite3", DBPath, "SELECT * FROM cpu_stats")
 	cmd1.Stdout = os.Stdout
 	cmd1.Stderr = os.Stderr
-	cmd2 := exec.Command("sqlite3", DBPath, "SELECT * FROM memory_stats ORDER BY year DESC, month DESC, day DESC, hour DESC, minute DESC, second DESC LIMIT 1")
+	cmd2 := exec.Command("sqlite3", DBPath, "SELECT * FROM memory_stats")
 	cmd2.Stdout = os.Stdout
 	cmd2.Stderr = os.Stderr
 	logger.Info("ダンプします")

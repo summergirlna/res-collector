@@ -4,6 +4,7 @@ import (
 	"context"
 	"log/slog"
 	"res-collector/internal/component"
+	"res-collector/internal/model"
 	"res-collector/internal/repository"
 )
 
@@ -29,6 +30,9 @@ func NewProvider(
 }
 
 func (p Provider) Save(ctx context.Context, in *Input) (*Output, error) {
+	management := model.NewManagement().Generate()
+	slog.Info("start process", "info", management.String())
+
 	slog.Info("start getting cpu stats")
 	c, err := p.cpuGetter.Get(ctx)
 	if err != nil {
@@ -45,17 +49,25 @@ func (p Provider) Save(ctx context.Context, in *Input) (*Output, error) {
 
 	slog.Info("save start")
 	_, err = p.transaction.Do(ctx, func(ctx context.Context) (interface{}, error) {
-		err = p.stats.SaveCpu(ctx, c)
+		err = p.stats.SaveManagement(ctx, management)
 		if err != nil {
 			return nil, err
 		}
-		err = p.stats.SaveMemory(ctx, m)
+
+		err = p.stats.SaveCpu(ctx, c, management)
+		if err != nil {
+			return nil, err
+		}
+		err = p.stats.SaveMemory(ctx, m, management)
 		if err != nil {
 			return nil, err
 		}
 
 		return nil, nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	slog.Info("save end")
 
 	return &Output{}, nil
