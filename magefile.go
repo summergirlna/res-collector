@@ -15,7 +15,7 @@ import (
 // Default target to run when none is specified
 // If not set, running mage will list available targets
 var (
-	Default = Build
+	Default = Run
 	BinPath = filepath.Join("bin", "res-collector")
 	DBPath  = filepath.Join("data", "example.db")
 	logger  = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{}))

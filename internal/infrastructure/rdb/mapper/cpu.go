@@ -19,7 +19,7 @@ type Cpu struct {
 }
 
 func FromCpu(m *model.Cpu) *Cpu {
-	year, month, day, hour, minute, second := m.ParseTimestamp()
+	year, month, day, hour, minute, second := m.Timestamp.Parse()
 	return &Cpu{
 		SerialNumber: uuid.NewString(),
 		Year:         year,
